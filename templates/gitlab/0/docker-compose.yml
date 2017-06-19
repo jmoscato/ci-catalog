@@ -1,22 +1,5 @@
 version: '2'
 
-volumes:
-  gitlab-opt:
-    external: true
-    driver: 'null'
-  gitlab-etc:
-    external: true
-    driver: 'null'
-  gitlab-log:
-    external: true
-    driver: 'null'
-  postfix-log:
-    external: true
-    driver: 'null'
-  postfix-spool:
-    external: true
-    driver: 'null'
-
 services:
   gitlab:
     image: gitlab/gitlab-ce:latest
