@@ -1,0 +1,80 @@
+version: '2'
+
+catalog:
+  name: Gitlab Community
+  description: |
+    Gitlab CE is a free GitHub alternative
+  minimum_rancher_version: v1.6.0
+  maintainer: "John Moscato <jmoscato@gmail.com>"
+  uuid: gitlab-0
+  questions:
+    - variable: "gitlab_omnibus_config_extras"
+      label: "Gitlab omnibus config extra items:"
+      description: |
+        Additional items for GITLAB_OMNIBUS_CONFIG variable
+      required: true
+      default: |
+        external_url 'http://host:80'
+        gitlab_rails['gitlab_ssh_host'] = 'host'
+        gitlab_rails['gitlab_email_enabled'] = true
+        gitlab_rails['gitlab_email_from'] = 'user@example.com'
+        gitlab_rails['gitlab_email_display_name'] = 'Gitlab'
+        gitlab_rails['gitlab_email_reply_to'] = 'noreply@example.com'
+        gitlab_rails['manage_backup_path'] = true
+        gitlab_rails['backup_path'] = '/var/opt/gitlab/backups'
+        gitlab_rails['backup_archive_permissions'] = 0644
+        gitlab_rails['backup_pg_schema'] = 'public'
+        gitlab_rails['backup_keep_time'] = 604800
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        gitlab_rails['smtp_enable'] = true
+        gitlab_rails['smtp_address'] = 'postfix'
+        gitlab_rails['smtp_port'] = 25
+        gitlab_rails['smtp_domain'] = 'example.com'
+        gitlab_rails['smtp_authentication'] = false
+        gitlab_rails['smtp_enable_starttls_auto'] = false
+      type: "multiline"
+    - variable: "http_port"
+      description: "HTTP port to expose on host."
+      label: "HTTP port:"
+      required: true
+      default: 80
+      type: "string"
+    - variable: "smtp_port"
+      description: "SMTP port to expose on host."
+      label: "SMTP port:"
+      required: true
+      default: 25
+      type: "string"
+    - variable: "root_alias"
+      description: "Email address alias for root user."
+      label: "Root email alias:"
+      required: true
+      default: admin@example.com
+      type: "string"
+
+gitlab:
+  scale: 1
+  start_on_create: true
+  health_check:
+    healthy_threshold: 2
+    response_timeout: 2000
+    port: ${http_port}
+    unhealthy_threshold: 3
+    initializing_timeout: 60000
+    interval: 2000
+    strategy: recreate
+    request_line: GET "/" "HTTP/1.0"
+    reinitializing_timeout: 60000
+
+postfix:
+  scale: 1
+  start_on_create: true
+  health_check:
+    response_timeout: 2000
+    healthy_threshold: 2
+    port: ${smtp_port}
+    unhealthy_threshold: 3
+    initializing_timeout: 60000
+    interval: 2000
+    strategy: recreate
+    reinitializing_timeout: 60000
